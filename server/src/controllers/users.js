@@ -4,8 +4,8 @@ const User = require("../models/users");
 const { securePassword } = require("../utils/password");
 const { dev } = require("../config");
 const { sendEmailWithNodeMailer } = require("../utils/email");
-const { createJsonWebToken, verifyJsonWebToken } = require('../utils/token');
-
+const { createJsonWebToken } = require('../utils/token');
+const jwt = require('jsonwebtoken');
 
 // const fs = require('fs');
 const registerUser = async (req, res, next) => {
@@ -68,7 +68,34 @@ const registerUser = async (req, res, next) => {
     } catch (error) {
         next(error)
     };
+};
+
+const verifyUser = async (req, res, next) => {
+    try {
+        // step 1: get token 
+        const token = req.body.token;
+
+        // step 2: check token exist in request body
+        if (!token) throw createError(404, 'token not found');
+
+        // step 3: verify token and decode data
+        const decoded = jwt.verify(token, String(dev.app.jwtAccountActivationKey));
+
+        // step 4: create the user - so, we will receive the data from decoded
+        const newUser = new User({ ...decoded });
+        // second way for the code: const {name, email} = decoded
+
+        // step 5: save the user
+        const user = await newUser.save();
+
+        // step 6: send the response
+        if (!user) throw createError(400, 'user was not found');
+
+        return successResponse(res, 201, 'user was created successfully! Please signin');
+    } catch (error) {
+        next(error);
+    }
 }
 
-module.exports = { registerUser }
+module.exports = { registerUser, verifyUser }
 
