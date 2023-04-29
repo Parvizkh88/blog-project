@@ -1,10 +1,9 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-// const cors = require('cors');
 const morgan = require('morgan');
 const createError = require('http-errors');
 const cookieParser = require('cookie-parser');
-
+const cors = require('cors');
 // const usersRouter = require('./routes/users');
 const { dev } = require('./config');
 const connectDatabase = require('./config/db');
@@ -12,8 +11,6 @@ const userRouter = require('./routers/users');
 // const connectDB = require('./config/db');
 
 const app = express();
-
-// app.use(cors());
 
 // app.use('/api/users', usersRouter)
 
@@ -24,7 +21,13 @@ app.listen(port, async () => {
     // we use await since it returns a promise
     await connectDatabase();
 });
-
+// when I request from frontend there will be some credentials in the request
+// and I want to be sure that redentials are receivable from here
+app.use(cors({
+    // from this place I will make the request
+    origin: 'http://localhost:3000',
+    credentials: true
+}));
 app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(bodyParser.json());

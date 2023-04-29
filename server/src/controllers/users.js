@@ -102,11 +102,12 @@ const loginUser = async (req, res, next) => {
         // token base authentication
         // generate JWT access token
         // we store the id in the token: {id:user._id}
-        const token = jwt.sign({ id: user._id }, String(dev.app.jwtAuthorizationKey), {
+        const token = jwt.sign({ id: user._id },
+            String(dev.app.jwtAuthorizationKey), {
             expiresIn: '5m'
         });
 
-        // reset the cookie
+        // reset the cookie if there is a cookie with the same id
         if (req.cookies[`${user._id}`]) {
             req.cookies[`${user._id}`] = ''
         }
@@ -132,6 +133,8 @@ const loginUser = async (req, res, next) => {
         }
         return successResponse(res, 200, 'user was logged in', {
             user: userData,
+            // I send the token here
+            token: token
         });
     } catch (error) {
         next(error)
