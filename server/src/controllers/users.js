@@ -94,11 +94,18 @@ const loginUser = async (req, res, next) => {
         if (!isPasswordMatched) {
             throw createError(400, 'email/password did not match');
         }
+        // with status code of 400 it works better
         if (user.isBanned) {
             throw createError(204, 'You are banned. Please contact the authority');
         }
 
         // token base authentication
+        // generate JWT access token
+        // we store the id in the token: {id:user._id}
+        const token = jwt.sign({ id: user._id }, String(dev.app.jwtAuthorizationKey), {
+            expiresIn: '5m'
+        });
+        console.log(token);
 
         const userData = {
             id: user._id,
