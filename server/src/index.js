@@ -2,8 +2,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 // const cors = require('cors');
 const morgan = require('morgan');
-const createError = require('http-errors')
-
+const createError = require('http-errors');
+const cookieParser = require('cookie-parser');
 
 // const usersRouter = require('./routes/users');
 const { dev } = require('./config');
@@ -26,6 +26,7 @@ app.listen(port, async () => {
 });
 
 app.use(morgan('dev'));
+app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 

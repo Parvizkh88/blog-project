@@ -105,7 +105,23 @@ const loginUser = async (req, res, next) => {
         const token = jwt.sign({ id: user._id }, String(dev.app.jwtAuthorizationKey), {
             expiresIn: '5m'
         });
-        console.log(token);
+
+        // reset the cookie
+        if (req.cookies[`${user._id}`]) {
+            req.cookies[`${user._id}`] = ''
+        }
+
+        // send the token in a response
+        // name of the cookie: String(user._id)
+        // token is the thing you want to store in the cookie:token
+        // path name I want to use when I am creating the cookie
+        res.cookie(String(user._id), token, {
+            path: '/',
+            expires: new Date(Date.now() + 1000 * 60 * 4),
+            httpOnly: true,
+            secure: true,
+            sameSite: 'none'
+        })
 
         const userData = {
             id: user._id,
