@@ -1,7 +1,7 @@
 const { errorResponse, successResponse } = require("../utils/responsehandler");
 const createError = require('http-errors');
 const User = require("../models/users");
-const { securePassword } = require("../utils/password");
+const { securePassword, comparedPassword } = require("../utils/password");
 const { dev } = require("../config");
 const { sendEmailWithNodeMailer } = require("../utils/email");
 const { createJsonWebToken } = require('../utils/token');
@@ -71,6 +71,50 @@ const registerUser = async (req, res, next) => {
     };
 };
 
+const loginUser = async (req, res, next) => {
+    try {
+        const { email, password } = req.body;
+        if (!email || !password) {
+            throw createError(404, 'email or password not found ')
+        };
+
+        if (password.length < 6) {
+            throw createError(400, 'minimum length for password is 6');
+        }
+
+        const user = await User.findOne({ email })
+        if (!user) {
+            throw createError(404, 'user with this email does not exist. Please register first')
+        }
+
+        const isPasswordMatched = await comparedPassword(password, user.password)
+        // console.log(user.password);
+        // console.log(password);
+
+        if (!isPasswordMatched) {
+            throw createError(400, 'email/password did not match');
+        }
+        if (user.isBanned) {
+            throw createError(204, 'You are banned. Please contact the authority');
+        }
+
+        // token base authentication
+
+        const userData = {
+            id: user._id,
+            name: user.name,
+            email: user.email,
+            phone: user.phone,
+            image: user.image,
+        }
+        return successResponse(res, 200, 'user was logged in', {
+            user: userData,
+        });
+    } catch (error) {
+        next(error)
+    }
+};
+
 const verifyUser = async (req, res, next) => {
     try {
         // step 1: get token 
@@ -133,5 +177,5 @@ const findUser = async (req, res, next) => {
         next(error);
     }
 }
-module.exports = { registerUser, verifyUser, findUser }
+module.exports = { registerUser, verifyUser, findUser, loginUser }
 

@@ -8,4 +8,11 @@ exports.securePassword = async (password) => {
         console.log(error);
     }
 };
+exports.comparedPassword = async (plainPassword, password) => {
+    try {
+        return await bcrypt.compare(plainPassword, password);
+    } catch (error) {
+        console.log(error);
+    }
+};
 
