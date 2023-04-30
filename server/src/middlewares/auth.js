@@ -9,7 +9,7 @@ const isLoggedIn = (req, res, next) => {
                 message: 'No cookie found'
             })
         }
-        // token inside the cookie 
+        // token inside the cookie - extract the token
         const token = req.headers.cookie.split('=')[1]
         console.log(token);
         // verify token

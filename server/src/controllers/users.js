@@ -118,9 +118,9 @@ const loginUser = async (req, res, next) => {
         // path name I want to use when I am creating the cookie
         res.cookie(String(user._id), token, {
             path: '/',
-            expires: new Date(Date.now() + 1000 * 60 * 4),
-            httpOnly: true,
-            secure: true,
+            expires: new Date(Date.now() + 1000 * 4 * 60),
+            httpOnly: true, // send the jwt token inside http only cookie
+            secure: false,
             sameSite: 'none'
         })
 

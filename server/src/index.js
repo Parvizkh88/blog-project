@@ -25,8 +25,8 @@ app.listen(port, async () => {
 // and I want to be sure that redentials are receivable from here
 app.use(cors({
     // from this place I will make the request
-    origin: 'http://localhost:3000',
-    credentials: true
+    origin: '*',
+    credentials: true// when user make http only cookie request we want to access the cookie
 }));
 app.use(morgan('dev'));
 app.use(cookieParser());
